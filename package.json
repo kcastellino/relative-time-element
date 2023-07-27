@@ -30,7 +30,10 @@
     "manifest": "custom-elements-manifest analyze"
   },
   "prettier": "@github/prettier-config",
-  "repository": "kcastellino/relative-time-element",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kcastellino/relative-time-element.git"
+  },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.8.0",
     "@github/prettier-config": "^0.0.6",
@@ -48,5 +51,10 @@
   "eslintIgnore": [
     "dist/"
   ],
-  "customElements": "custom-elements.json"
+  "customElements": "custom-elements.json",
+  "description": "Web component extensions to the standard <time> element.",
+  "bugs": {
+    "url": "https://github.com/kcastellino/relative-time-element/issues"
+  },
+  "homepage": "https://github.com/kcastellino/relative-time-element#readme"
 }
