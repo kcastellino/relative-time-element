@@ -3,19 +3,19 @@ import '../src/index.ts'
 
 suite('title-format', function () {
   test('null title if datetime is missing', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     assert.equal(time.getAttribute('title'), null)
   })
 
   test('locale-aware title for datetime value', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
     await Promise.resolve()
     assert.match(time.getAttribute('title'), /\d{4}/)
   })
 
   test('skips setting a title attribute if already provided', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('title', 'does not change')
     time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
     await Promise.resolve()
@@ -23,20 +23,20 @@ suite('title-format', function () {
   })
 
   test('skips setting a title attribute if datetime is missing', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     await Promise.resolve()
     assert.isNull(time.getAttribute('title'))
   })
 
   test('sets the title attribute for datetime value', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
     await Promise.resolve()
     assert.match(time.getAttribute('title'), /\d{4}/)
   })
 
   test('update the title attribute after a datetime value change', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', '1970-05-01T00:00:00.000Z')
     await Promise.resolve()
     assert.match(time.getAttribute('title'), /1970/)
@@ -51,7 +51,7 @@ suite('title-format', function () {
 
   test('set the title attribute when parsed element is upgraded', async () => {
     const root = document.createElement('div')
-    root.innerHTML = '<relative-time datetime="1970-01-01T00:00:00.000Z"></relative-time>'
+    root.innerHTML = '<time is="t-relative" datetime="1970-01-01T00:00:00.000Z"></relative-time>'
     if ('CustomElements' in window) {
       window.CustomElements.upgradeSubtree(root)
     }

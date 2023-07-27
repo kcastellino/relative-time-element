@@ -5,26 +5,20 @@
 Clone the repository from GitHub.
 
 ```
-$ git clone https://github.com/github/time-elements
+$ git clone https://github.com/kcastellino/relative-time-element
 ```
 
-Now just cd into the directory and run `make` to install the development dependencies.
+Now just cd into the directory and run `npm install` to install the development dependencies.
 
-```
-$ cd time-elements/
-$ make
+```bash
+cd relative-time-element/
+npm install
 ```
 
 ## Testing
 
-Lint tools and headless tests can be ran via `make`.
+Lint tools and headless tests can be run via `npm run`.
 
-```
-$ make test
-```
-
-The QUnit test suite can also be ran in the browser.
-
-```
-$ open test/test.html
+```bash
+npm run test
 ```

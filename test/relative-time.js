@@ -41,7 +41,7 @@ suite('relative-time', function () {
 
   test('does not call update() frequently with attributeChangedCallback', async () => {
     let counter = 0
-    const el = document.createElement('relative-time')
+    const el = document.createElement('time', {is: 't-relative'})
     el.update = function () {
       counter += 1
       return RelativeTimeElement.prototype.update.call(this)
@@ -71,7 +71,7 @@ suite('relative-time', function () {
   })
 
   test('sets title back to default if removed', async () => {
-    const el = document.createElement('relative-time')
+    const el = document.createElement('time', {is: 't-relative'})
     el.setAttribute('datetime', new Date().toISOString())
     await Promise.resolve()
     assert.ok(el.getAttribute('title'))
@@ -83,24 +83,25 @@ suite('relative-time', function () {
     assert.equal(el.getAttribute('title'), text)
   })
 
-  test('shadowDOM reflects textContent with invalid date', async () => {
-    const el = document.createElement('relative-time')
-    el.textContent = 'A date string'
+  test('text not updated if date is invalid', async () => {
+    const el = document.createElement('time', {is: 't-relative'})
+    const dummyContent = 'A date string'
+    el.textContent = dummyContent
     el.setAttribute('datetime', 'Invalid')
     await Promise.resolve()
-    if (el.shadowRoot) assert.equal(el.shadowRoot.textContent, el.textContent)
+    assert.equal(el.textContent, dummyContent)
   })
 
   test('updates the time automatically when it is a few seconds ago', async function () {
     // eslint-disable-next-line @typescript-eslint/no-invalid-this
     this.timeout(3000)
-    const el = document.createElement('relative-time')
+    const el = document.createElement('time', {is: 't-relative'})
     el.setAttribute('datetime', new Date(Date.now() + 25000).toISOString())
     await Promise.resolve()
-    const display = el.shadowRoot?.textContent || el.textContent
+    const display = el.textContent
     assert.match(display, /in \d+ seconds/)
     await new Promise(resolve => setTimeout(resolve, 2000))
-    const nextDisplay = el.shadowRoot.textContent || el.textContent
+    const nextDisplay = el.textContent
     assert.match(nextDisplay, /in \d+ seconds/)
     assert.notEqual(nextDisplay, display)
   })
@@ -118,273 +119,273 @@ suite('relative-time', function () {
   })
 
   test("doesn't error when no date is provided", async () => {
-    const element = document.createElement('relative-time')
+    const element = document.createElement('time', {is: 't-relative'})
     assert.doesNotThrow(() => element.attributeChangedCallback('datetime', null, null))
   })
 
   test('rewrites from now past datetime to days ago', async () => {
     const now = new Date(Date.now() - 3 * 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '3 days ago')
+    assert.equal(time.textContent, '3 days ago')
   })
 
   test('rewrites from now future datetime to days from now', async () => {
     const now = new Date(Date.now() + 3 * 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'in 3 days')
+    assert.equal(time.textContent, 'in 3 days')
   })
 
   test('rewrites from now past datetime to yesterday', async () => {
     const now = new Date(Date.now() - 1 * 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'yesterday')
+    assert.equal(time.textContent, 'yesterday')
   })
 
   test('rewrites from now past datetime to hours ago', async () => {
     const now = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '3 hours ago')
+    assert.equal(time.textContent, '3 hours ago')
   })
 
   test('rewrites from now future datetime to minutes from now', async () => {
     const now = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'in 3 hours')
+    assert.equal(time.textContent, 'in 3 hours')
   })
 
   test('rewrites from now past datetime to an hour ago', async () => {
     const now = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '1 hour ago')
+    assert.equal(time.textContent, '1 hour ago')
   })
 
   test('rewrites from now past datetime to minutes ago', async () => {
     const now = new Date(Date.now() - 3 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '3 minutes ago')
+    assert.equal(time.textContent, '3 minutes ago')
   })
 
   test('rewrites from now future datetime to minutes from now', async () => {
     const now = new Date(Date.now() + 3 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'in 3 minutes')
+    assert.equal(time.textContent, 'in 3 minutes')
   })
 
   test('rewrites from now past datetime to a minute ago', async () => {
     const now = new Date(Date.now() - 1 * 60 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '1 minute ago')
+    assert.equal(time.textContent, '1 minute ago')
   })
 
   test('rewrites a few seconds ago to now', async () => {
     const now = new Date().toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
   })
 
   test('rewrites a few seconds from now to now', async () => {
     const now = new Date().toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
   })
 
   test('displays future times as now', async () => {
     const now = new Date(Date.now() + 3 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
   })
 
   test('displays yesterday', async () => {
     const now = new Date(Date.now() - 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'yesterday')
+    assert.equal(time.textContent, 'yesterday')
   })
 
   test('displays a day from now', async () => {
     const now = new Date(Date.now() + 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'tomorrow')
+    assert.equal(time.textContent, 'tomorrow')
   })
 
   test('displays 2 days ago', async () => {
     const now = new Date(Date.now() - 2 * 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, '2 days ago')
+    assert.equal(time.textContent, '2 days ago')
   })
 
   test('displays 2 days from now', async () => {
     const now = new Date(Date.now() + 2 * 60 * 60 * 24 * 1000).toISOString()
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'in 2 days')
+    assert.equal(time.textContent, 'in 2 days')
   })
 
   test('uses html lang if given lang is invalid', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', new Date())
     time.setAttribute('lang', '')
     document.documentElement.lang = 'es'
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'ahora')
+    assert.equal(time.textContent, 'ahora')
   })
 
   test('ignores empty lang attributes', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     time.setAttribute('datetime', new Date())
     time.setAttribute('lang', '')
     document.documentElement.lang = ''
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
   })
 
   suite('[threshold]', function () {
     test('switches to dates after 30 past days with default threshold', async () => {
       const now = new Date(Date.now() - 32 * 60 * 60 * 24 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('switches to dates after 30 future days with default threshold', async () => {
       freezeTime(new Date('2023-01-01T00:00:00Z'))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', '2023-02-10T00:00:00Z')
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('switches to dates after 1 day with P1D threshold', async () => {
       const now = new Date(Date.now() - 2 * 60 * 60 * 24 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('threshold', 'P1D')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('switches to dates after 30 future days with default threshold', async () => {
       freezeTime(new Date('2023-01-01T00:00:00Z'))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', '2023-02-10T00:00:00Z')
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('switches to dates after 30 future days with P1D threshold', async () => {
       freezeTime(new Date('2023-01-01T00:00:00Z'))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('threshold', 'P1D')
       time.setAttribute('datetime', '2023-01-03T00:00:00Z')
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /on [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('uses `prefix` attribute to customise prefix', async () => {
       freezeTime(new Date('2023-01-01T00:00:00Z'))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('prefix', 'will happen by')
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', '2023-02-01T00:00:00.000Z')
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /will happen by [A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /will happen by [A-Z][a-z]{2} \d{1,2}/)
     })
 
     test('uses `prefix` attribute to customise prefix as empty string', async () => {
       freezeTime(new Date('2023-01-01T00:00:00Z'))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('prefix', '')
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', '2023-02-01T00:00:00.000Z')
       await Promise.resolve()
-      assert.match(time.shadowRoot.textContent, /[A-Z][a-z]{2} \d{1,2}/)
+      assert.match(time.textContent, /[A-Z][a-z]{2} \d{1,2}/)
     })
   })
 
   test('ignores malformed dates', async () => {
-    const time = document.createElement('relative-time')
-    time.shadowRoot.textContent = 'Jun 30'
+    const time = document.createElement('time', {is: 't-relative'})
+    time.textContent = 'Jun 30'
     time.setAttribute('datetime', 'bogus')
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'Jun 30')
+    assert.equal(time.textContent, 'Jun 30')
   })
 
   test('ignores blank dates', async () => {
-    const time = document.createElement('relative-time')
-    time.shadowRoot.textContent = 'Jun 30'
+    const time = document.createElement('time', {is: 't-relative'})
+    time.textContent = 'Jun 30'
     time.setAttribute('datetime', '')
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'Jun 30')
+    assert.equal(time.textContent, 'Jun 30')
   })
 
   test('ignores removed dates', async () => {
-    const time = document.createElement('relative-time')
+    const time = document.createElement('time', {is: 't-relative'})
     const now = new Date().toISOString()
 
     time.setAttribute('datetime', now)
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
 
     time.removeAttribute('datetime')
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'now')
+    assert.equal(time.textContent, 'now')
   })
 
   test('sets relative contents when parsed element is upgraded', async () => {
     const now = new Date().toISOString()
     const root = document.createElement('div')
-    root.innerHTML = `<relative-time datetime="${now}"></relative-time>`
+    root.innerHTML = `<time is="t-relative" datetime="${now}"></time>`
     if ('CustomElements' in window) {
       window.CustomElements.upgradeSubtree(root)
     }
     await Promise.resolve()
-    assert.equal(root.children[0].shadowRoot.textContent, 'now')
+    assert.equal(root.children[0].textContent, 'now')
   })
 
   test('ignores blank formats', async () => {
-    const time = document.createElement('relative-time')
-    time.shadowRoot.textContent = 'Jun 30'
+    const time = document.createElement('time', {is: 't-relative'})
+    time.textContent = 'Jun 30'
     time.setAttribute('datetime', '2022-01-10T12:00:00')
     time.setAttribute('lang', 'en-US')
     time.setAttribute('format', '')
     await Promise.resolve()
-    assert.equal(time.shadowRoot.textContent, 'on Jan 10, 2022')
+    assert.equal(time.textContent, 'on Jan 10, 2022')
   })
 
   const esLangSupport = (function () {
@@ -398,216 +399,216 @@ suite('relative-time', function () {
   if (esLangSupport) {
     test('rewrites given lang attribute', async () => {
       const now = new Date(Date.now() - 3 * 60 * 60 * 24 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('datetime', now)
       time.setAttribute('lang', 'es')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'hace 3 días')
+      assert.equal(time.textContent, 'hace 3 días')
     })
 
     test('rewrites given parent lang attribute', async () => {
       const container = document.createElement('span')
       container.setAttribute('lang', 'es')
       const now = new Date(Date.now() - 3 * 60 * 60 * 24 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       container.appendChild(time)
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'hace 3 días')
+      assert.equal(time.textContent, 'hace 3 días')
     })
   }
 
   suite('[tense=past]', function () {
     test('always uses relative dates', async () => {
       freezeTime(new Date(2033, 1, 1))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', '2023-01-01T00:00:00Z')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '11 years ago')
+      assert.equal(time.textContent, '11 years ago')
     })
 
     test('rewrites from now past datetime to minutes ago', async () => {
       const now = new Date(Date.now() - 3 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '3 minutes ago')
+      assert.equal(time.textContent, '3 minutes ago')
     })
 
     test('rewrites a few seconds ago to now', async () => {
       const now = new Date().toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'now')
+      assert.equal(time.textContent, 'now')
     })
 
     test('displays future times as now', async () => {
       const now = new Date(Date.now() + 3 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'now')
+      assert.equal(time.textContent, 'now')
     })
 
     test('sets relative contents when parsed element is upgraded', async () => {
       const now = new Date().toISOString()
       const root = document.createElement('div')
-      root.innerHTML = `<relative-time tense="past" datetime="${now}"></relative-time>`
+      root.innerHTML = `<time is="t-relative" tense="past" datetime="${now}"></time>`
       if ('CustomElements' in window) {
         window.CustomElements.upgradeSubtree(root)
       }
       await Promise.resolve()
-      assert.equal(root.children[0].shadowRoot.textContent, 'now')
+      assert.equal(root.children[0].textContent, 'now')
     })
 
     test('rewrites from now past datetime to months ago', async () => {
       freezeTime(new Date(2023, 8, 1))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', '2023-06-01T00:00:00Z')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '4 months ago')
+      assert.equal(time.textContent, '4 months ago')
     })
 
     test('micro formats years', async () => {
       const datetime = new Date()
       datetime.setFullYear(datetime.getFullYear() - 10)
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', datetime)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '10y')
+      assert.equal(time.textContent, '10y')
     })
 
     test('micro formats future times', async () => {
       const now = new Date(Date.now() + 3 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1m')
+      assert.equal(time.textContent, '1m')
     })
 
     test('micro formats hours', async () => {
       const now = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1h')
+      assert.equal(time.textContent, '1h')
     })
 
     test('micro formats days', async () => {
       const now = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'past')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1d')
+      assert.equal(time.textContent, '1d')
     })
   })
 
   suite('[tense=future]', function () {
     test('always uses relative dates', async () => {
       freezeTime(new Date(2023, 1, 1))
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', '2033-01-01T00:00:00Z')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'in 10 years')
+      assert.equal(time.textContent, 'in 10 years')
     })
 
     test('rewrites from now future datetime to minutes ago', async () => {
       const now = new Date(Date.now() + 3 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'in 3 minutes')
+      assert.equal(time.textContent, 'in 3 minutes')
     })
 
     test('rewrites a few seconds from now to now', async () => {
       const now = new Date().toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'now')
+      assert.equal(time.textContent, 'now')
     })
 
     test('displays past times as now', async () => {
       const now = new Date(Date.now() + 3 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, 'now')
+      assert.equal(time.textContent, 'now')
     })
 
     test('sets relative contents when parsed element is upgraded', async () => {
       const now = new Date().toISOString()
       const root = document.createElement('div')
-      root.innerHTML = `<relative-time tense="future" datetime="${now}"></relative-time>`
+      root.innerHTML = `<time is="t-relative" tense="future" datetime="${now}"></time>`
       if ('CustomElements' in window) {
         window.CustomElements.upgradeSubtree(root)
       }
       await Promise.resolve()
-      assert.equal(root.children[0].shadowRoot.textContent, 'now')
+      assert.equal(root.children[0].textContent, 'now')
     })
 
     test('micro formats years', async () => {
       const now = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '10y')
+      assert.equal(time.textContent, '10y')
     })
 
     test('micro formats past times', async () => {
       const now = new Date(Date.now() + 3 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1m')
+      assert.equal(time.textContent, '1m')
     })
 
     test('micro formats hours', async () => {
       const now = new Date(Date.now() + 60 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1h')
+      assert.equal(time.textContent, '1h')
     })
 
     test('micro formats days', async () => {
       const now = new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString()
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('tense', 'future')
       time.setAttribute('datetime', now)
       time.setAttribute('format', 'micro')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '1d')
+      assert.equal(time.textContent, '1d')
     })
   })
 
   suite('[threshold=0][prefix=""]', () => {
     test('with only date attributes', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
       time.setAttribute('threshold', '0')
       time.setAttribute('prefix', '')
@@ -616,11 +617,11 @@ suite('relative-time', function () {
       time.setAttribute('year', 'numeric')
 
       await Promise.resolve()
-      assert.include(['Dec 31, 1969', '31 Dec 1969', 'Jan 1, 1970', '1 Jan 1970'], time.shadowRoot.textContent)
+      assert.include(['Dec 31, 1969', '31 Dec 1969', 'Jan 1, 1970', '1 Jan 1970'], time.textContent)
     })
 
     test('with empty year attribute', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
       time.setAttribute('threshold', '0')
       time.setAttribute('prefix', '')
@@ -629,11 +630,11 @@ suite('relative-time', function () {
       time.setAttribute('month', 'short')
 
       await Promise.resolve()
-      assert.include(['Dec 31', '31 Dec', 'Jan 1', '1 Jan'], time.shadowRoot.textContent)
+      assert.include(['Dec 31', '31 Dec', 'Jan 1', '1 Jan'], time.textContent)
     })
 
     test('with only time attributes', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('lang', 'en-US')
       time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
       time.setAttribute('threshold', '0')
@@ -646,23 +647,23 @@ suite('relative-time', function () {
       await Promise.resolve()
 
       if ('Intl' in window) {
-        assert.match(time.shadowRoot.textContent, /^\d{1,2}:\d\d (AM|PM)$/)
+        assert.match(time.textContent, /^\d{1,2}:\d\d (AM|PM)$/)
       } else {
-        assert.match(time.shadowRoot.textContent, /^\d{2}:\d{2}$/)
+        assert.match(time.textContent, /^\d{2}:\d{2}$/)
       }
     })
 
     test('ignores contents if datetime attribute is missing', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('year', 'numeric')
       time.setAttribute('threshold', '0')
       time.setAttribute('prefix', '')
       await Promise.resolve()
-      assert.equal(time.shadowRoot.textContent, '')
+      assert.equal(time.textContent, '')
     })
 
     test('can provide just year', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
       time.setAttribute('day', '')
       time.setAttribute('month', '')
@@ -670,11 +671,11 @@ suite('relative-time', function () {
       time.setAttribute('threshold', '0')
       time.setAttribute('prefix', '')
       await Promise.resolve()
-      assert.include(['1969', '1970'], time.shadowRoot.textContent)
+      assert.include(['1969', '1970'], time.textContent)
     })
 
     test('updates format when attributes change', async () => {
-      const time = document.createElement('relative-time')
+      const time = document.createElement('time', {is: 't-relative'})
       time.setAttribute('datetime', '1970-01-01T00:00:00.000Z')
       time.setAttribute('threshold', '0')
       time.setAttribute('prefix', '')
@@ -683,38 +684,38 @@ suite('relative-time', function () {
 
       time.setAttribute('year', 'numeric')
       await Promise.resolve()
-      assert.include(['1969', '1970'], time.shadowRoot.textContent)
+      assert.include(['1969', '1970'], time.textContent)
 
       time.setAttribute('year', '2-digit')
       await Promise.resolve()
-      assert.include(['69', '70'], time.shadowRoot.textContent)
+      assert.include(['69', '70'], time.textContent)
     })
 
     test('sets formatted contents when parsed element is upgraded', async () => {
       const root = document.createElement('div')
       root.innerHTML =
-        '<relative-time datetime="1970-01-01T00:00:00.000Z" day="" month="" year="numeric" prefix="" threshold="0"></relative-time>'
+        '<time is="t-relative" datetime="1970-01-01T00:00:00.000Z" day="" month="" year="numeric" prefix="" threshold="0"></time>'
       if ('CustomElements' in window) {
         window.CustomElements.upgradeSubtree(root)
       }
       await Promise.resolve()
-      assert.include(['1969', '1970'], root.children[0].shadowRoot.textContent)
+      assert.include(['1969', '1970'], root.children[0].textContent)
     })
     ;('Intl' in window ? test : test.skip)('displays time zone name', async () => {
       const root = document.createElement('div')
       root.innerHTML =
-        '<relative-time datetime="1970-01-01T00:00:00.000Z" day="" month="" year="" minute="2-digit" time-zone-name="short" prefix="" threshold="0"></relative-time>'
+        '<time is="t-relative" datetime="1970-01-01T00:00:00.000Z" day="" month="" year="" minute="2-digit" time-zone-name="short" prefix="" threshold="0"></time>'
       if ('CustomElements' in window) {
         window.CustomElements.upgradeSubtree(root)
       }
 
       await Promise.resolve()
-      assert.match(root.children[0].shadowRoot.textContent, /^\d{1,2} (\w+([+-]\d+)?)$/)
-      assert.equal(root.children[0].shadowRoot.textContent, '0 GMT+4')
+      assert.match(root.children[0].textContent, /^\d{1,2} (\w+([+-]\d+)?)$/)
+      assert.equal(root.children[0].textContent, '0 GMT+4')
     })
 
     test('updates time zone when the `time-zone-name` attribute changes', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('lang', 'en-US')
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       el.setAttribute('day', 'numeric')
@@ -725,18 +726,18 @@ suite('relative-time', function () {
 
       fixture.appendChild(el)
       await Promise.resolve()
-      assert.equal(el.shadowRoot.textContent, '1/1/1970, GMT+4')
+      assert.equal(el.textContent, '1/1/1970, GMT+4')
 
       el.setAttribute('time-zone-name', 'long')
 
       await Promise.resolve()
-      assert.equal(el.shadowRoot.textContent, '1/1/1970, Gulf Standard Time')
+      assert.equal(el.textContent, '1/1/1970, Gulf Standard Time')
     })
   })
 
   suite('relative-time-updated event', () => {
     test('dispatches a bubbling+composed relative-time-updated event on each update', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let event
       el.addEventListener('relative-time-updated', e => (event = e))
@@ -747,7 +748,7 @@ suite('relative-time', function () {
     })
 
     test('event contains oldText, newText, oldTitle, newTitle properties', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let event
       el.addEventListener('relative-time-updated', e => (event = e))
@@ -765,7 +766,7 @@ suite('relative-time', function () {
     })
 
     test('allows binding of `onrelativetimeupdated` property', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let event
       el.onRelativeTimeUpdated = e => (event = e)
@@ -774,7 +775,7 @@ suite('relative-time', function () {
     })
 
     test('unbinds old `onRelativeTimeUpdated` property values', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let called = false
       const fn = () => (called = true)
@@ -787,7 +788,7 @@ suite('relative-time', function () {
     })
 
     test('only binds function event listeners on `onRelativeTimeUpdated`', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let called = false
       const listenerObject = {
@@ -802,7 +803,7 @@ suite('relative-time', function () {
     })
 
     test('calling stopImmediatePropagation() effects onRelativeTimeUpdated property', async () => {
-      const el = document.createElement('relative-time')
+      const el = document.createElement('time', {is: 't-relative'})
       el.setAttribute('datetime', '1970-01-01T00:00:00.000-08:00')
       let called = false
       el.addEventListener('relative-time-updated', e => {
@@ -1782,9 +1783,9 @@ suite('relative-time', function () {
         formatStyle,
         precision,
       }).map(([k, v]) => (v ? `${k}="${v}"` : ''))
-      test(`<relative-time ${attrs.join(' ')}> => ${expected}`, async () => {
+      test(`<time is="t-relative" ${attrs.join(' ')}> => ${expected}`, async () => {
         freezeTime(new Date(reference))
-        const time = document.createElement('relative-time')
+        const time = document.createElement('time', {is: 't-relative'})
         time.setAttribute('datetime', datetime)
         if (tense) time.setAttribute('tense', tense)
         if (format) time.setAttribute('format', format)
@@ -1795,7 +1796,7 @@ suite('relative-time', function () {
         if (lang) time.setAttribute('lang', lang)
         if (formatStyle) time.formatStyle = formatStyle
         await Promise.resolve()
-        assert.equal(time.shadowRoot.textContent, expected)
+        assert.equal(time.textContent, expected)
       })
     }
   })
@@ -2451,9 +2452,9 @@ suite('relative-time', function () {
         formatStyle,
         precision,
       }).map(([k, v]) => (v ? `${k}="${v}"` : ''))
-      test(`<relative-time ${attrs.join(' ')}> => ${expected}`, async () => {
+      test(`<time is="t-relative" ${attrs.join(' ')}> => ${expected}`, async () => {
         freezeTime(new Date(reference))
-        const time = document.createElement('relative-time')
+        const time = document.createElement('time', {is: 't-relative'})
         time.setAttribute('datetime', datetime)
         if (tense) time.setAttribute('tense', tense)
         if (format) time.setAttribute('format', format)
@@ -2461,7 +2462,7 @@ suite('relative-time', function () {
         if (lang) time.setAttribute('lang', lang)
         if (formatStyle) time.formatStyle = formatStyle
         await Promise.resolve()
-        assert.equal(time.shadowRoot.textContent, expected)
+        assert.equal(time.textContent, expected)
       })
     }
   })

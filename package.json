@@ -1,5 +1,5 @@
 {
-  "name": "@github/relative-time-element",
+  "name": "@kcastellino/relative-time-element",
   "version": "0.0.0-development",
   "main": "dist/bundle.js",
   "type": "module",
@@ -26,11 +26,11 @@
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "test": "web-test-runner",
-    "postpublish": "npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'",
+    "postpublish": "npm publish --ignore-scripts --access public",
     "manifest": "custom-elements-manifest analyze"
   },
   "prettier": "@github/prettier-config",
-  "repository": "github/relative-time-element",
+  "repository": "kcastellino/relative-time-element",
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.8.0",
     "@github/prettier-config": "^0.0.6",

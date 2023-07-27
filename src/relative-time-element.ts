@@ -1,5 +1,5 @@
 import {Duration, elapsedTime, getRelativeTimeUnit, isDuration, roundToSingleUnit, Unit, unitNames} from './duration.js'
-const HTMLElement = globalThis.HTMLElement || (null as unknown as typeof window['HTMLElement'])
+const HTMLTimeElement = globalThis.HTMLTimeElement || (null as unknown as typeof window['HTMLTimeElement'])
 
 export type DeprecatedFormat = 'auto' | 'micro' | 'elapsed'
 export type ResolvedFormat = 'duration' | 'relative' | 'datetime'
@@ -72,9 +72,9 @@ const dateObserver = new (class {
   }
 })()
 
-export class RelativeTimeElement extends HTMLElement implements Intl.DateTimeFormatOptions {
-  static define(tag = 'relative-time', registry = customElements) {
-    registry.define(tag, this)
+export class RelativeTimeElement extends HTMLTimeElement implements Intl.DateTimeFormatOptions {
+  static define(tag = 't-relative', registry = customElements) {
+    registry.define(tag, this, {extends: 'time'})
     return this
   }
 
@@ -88,8 +88,6 @@ export class RelativeTimeElement extends HTMLElement implements Intl.DateTimeFor
       'default'
     )
   }
-
-  #renderRoot: Node = this.shadowRoot ? this.shadowRoot : this.attachShadow ? this.attachShadow({mode: 'open'}) : this
 
   static get observedAttributes() {
     return [
@@ -422,12 +420,11 @@ export class RelativeTimeElement extends HTMLElement implements Intl.DateTimeFor
   }
 
   update() {
-    const oldText: string = this.#renderRoot.textContent || this.textContent || ''
+    const oldText: string = this.textContent || ''
     const oldTitle: string = this.getAttribute('title') || ''
     let newTitle: string = oldTitle
     const date = this.date
     if (typeof Intl === 'undefined' || !Intl.DateTimeFormat || !date) {
-      this.#renderRoot.textContent = oldText
       return
     }
     const now = Date.now()
@@ -448,10 +445,7 @@ export class RelativeTimeElement extends HTMLElement implements Intl.DateTimeFor
     }
 
     if (newText) {
-      this.#renderRoot.textContent = newText
-    } else if (this.shadowRoot === this.#renderRoot && this.textContent) {
-      // Ensure invalid dates fall back to lightDOM text content
-      this.#renderRoot.textContent = this.textContent
+      this.textContent = newText
     }
 
     if (newText !== oldText || newTitle !== oldTitle) {

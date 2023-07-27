@@ -16,6 +16,7 @@
     "custom-elements/define-tag-after-class-definition": "off",
     "custom-elements/no-method-prefixed-with-on": "off",
     "custom-elements/expose-class-on-global": "off",
+    "custom-elements/no-customized-built-in-elements": "off",
     "import/extensions": ["error", "always"],
     "import/no-unresolved": "off"
   },

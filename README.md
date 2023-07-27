@@ -1,45 +1,61 @@
-# &lt;relative-time&gt; element
+# Extensions for the built-in &lt;time&gt; element
+
+>This module is a slight respin on the excellent [@github/relative-time-element][github-time-element]. If you're looking for something which is battle-tested and production-ready, you should use their module. If you want to find out more about [how this module differs from that version](#so-how-does-this-differ-from-githubs-version), head to the section below.
 
 Formats a timestamp as a localized string or as relative text that auto-updates in the user's browser.
 
 This allows the server to cache HTML fragments containing dates and lets the browser choose how to localize the displayed time according to the user's preferences. For example, the server may have cached the following generated markup:
 
 ```html
-<relative-time datetime="2014-04-01T16:30:00-08:00">
+<time is="t-local" datetime="2014-04-01T16:30:00-08:00">
   April 1, 2014 4:30pm
-</relative-time>
+</time>
 ```
 
-Every visitor is served the same markup from the server's cache. When it reaches the browser, the custom `relative-time` JavaScript localizes the element's text into the local timezone and formatting.
+Every visitor is served the same markup from the server's cache. When it reaches the browser, the custom `time is="t-local"` element JavaScript localizes the element's text into the local timezone and formatting.
 
 ```html
-<relative-time datetime="2014-04-01T16:30:00-08:00">
+<time is="t-local" datetime="2014-04-01T16:30:00-08:00">
   1 Apr 2014 21:30
-</relative-time>
+</time>
 ```
 
 Dates are displayed before months, and a 24-hour clock is used, according to the user's browser settings.
 
 If the browser's JavaScript is disabled, the default text served in the cached markup is still displayed.
 
+## So how does this differ from GitHub's version?
+
+Essentially, it extends the default `<time>` element using a *customized built-in element* to attach the JavaScript behavior, rather than using an *autonomous custom element* (which use tags like `<relative-time>`).
+
+The primary advantage of customizing the built-in `time` element is because that element includes added semantic meaning defined by the HTML specification. Using the `time` element allows automated programs to access a machine-readable version of the date/time value (using the `datetime` attribute), which is great for things like listing the publish date of a blog post, informing when an event is going to take place, and highlighting other key dates *as a date*.
+
+The primary disadvantage of customizing the built-in `time` element is that the Safari web browser (which includes all browsers on iOS) has refused to support this extension mechanism. If you're looking for a solution which works everywhere out-of-the-box, I would recommend [@github/relative-time-element][github-time-element], on which this module is based. For more info, go to the [Safari browser compatibility section](#safari-and-ios).
+
+[github-time-element]: https://github.com/github/relative-time-element
+
 ## Installation
 
-Available on [npm](https://www.npmjs.com/) as [**@github/relative-time-element**](https://www.npmjs.com/package/@github/relative-time-element).
+Available on [npm](https://www.npmjs.com/) as [**@kcastellino/relative-time-element**](https://www.npmjs.com/package/@kcastellino/relative-time-element).
 
-```
-$ npm install @github/relative-time-element
-```
 
-This element uses the `Intl.DateTimeFormat` & `Intl.RelativeTimeFormat` APIs, which are supported by all modern JS engines. If you need to support an older browser, you may need to introduce a polyfill for `Intl.DateTimeFormat` & `Intl.RelativeTimeFormat`.
+```bash
+npm install @kcastellino/relative-time-element
+```
+This element produces a customized built-in element based on the `<time>` element, which is not available on Safari. You will need to introduce the appropriate [polyfill for customized built-in elements](#browser-support).
+
+This element also uses the `Intl.DateTimeFormat` & `Intl.RelativeTimeFormat` APIs, which are supported by all modern JS engines. If you need to support an older browser, you may need to introduce a [polyfill for `Intl.DateTimeFormat` & `Intl.RelativeTimeFormat`](#browser-support).
+
+Details on these polyfills can be found at the bottom of this README.
 
 ## Usage
 
-Add a `<relative-time>` element to your markup. Provide a default formatted date as the element's text content (e.g. April 1, 2014). It also MUST have a `datetime` attribute set to an ISO 8601 formatted timestamp.
+Add a `<time is="t-relative">` element to your markup. Provide a default formatted date as the element's text content (e.g. April 1, 2014). It also MUST have a `datetime` attribute set to an ISO 8601 formatted timestamp.
 
 ```html
-<relative-time datetime="2014-04-01T16:30:00-08:00">
+<time is="t-relative" datetime="2014-04-01T16:30:00-08:00">
   April 1, 2014
-</relative-time>
+</time>
 ```
 
 Depending on how far in the future this is being viewed, the element's text will be replaced with one of the following formats:
@@ -94,11 +110,11 @@ So, a relative date phrase is used for up to a month and then the actual date is
 This is the datetime that the element is meant to represent. This must be a valid [ISO8601 DateTime](https://en.wikipedia.org/wiki/ISO_8601). It is also possible to use the `date` property on the element to set the date. `el.date` expects a `Date` object, while `el.datetime` expects a string. Setting one will override the other.
 
 ```html
-<relative-time datetime="2014-04-01T16:30:00-08:00" tense="past">
+<time is="t-relative" datetime="2014-04-01T16:30:00-08:00" tense="past">
   April 1, 2038 <!-- Will display "now" until April 1 2038 at 16:30:01! -->
-</relative-time>
+</time>
 <script>
-  const el = document.querySelector('relative-time')
+  const el = document.querySelector('time[is=t-relative]')
   console.assert(el.date.toISOString() === el.datetime)
   el.date = new Date()
   console.assert(el.datetime !== "2014-04-01T16:30:00-08:00")
@@ -179,15 +195,15 @@ For example when the given `datetime` is 40 seconds behind of the current date:
 | auto    | 40s              | 40s ago         |
 
 ```html
-<relative-time datetime="2038-04-01T16:30:00-08:00" tense="past">
+<time is="t-relative" datetime="2038-04-01T16:30:00-08:00" tense="past">
   April 1, 2038 <!-- Will display "now" until April 1 2038 at 16:30:01! -->
-</relative-time>
+</time>
 ```
 
 ```html
-<relative-time datetime="1970-04-01T16:30:00-08:00" tense="future">
+<time is="t-relative" datetime="1970-04-01T16:30:00-08:00" tense="future">
   April 1, 2038 <!-- Will display "now" unless you had a time machine and went back to 1970 -->
-</relative-time>
+</time>
 ```
 
 #### precision (`'year'|'month'|'day'|'hour'|'minute'|'second'`, default: `'second'`)
@@ -224,15 +240,15 @@ Threshold can be used to specify when a relative display (e.g. "5 days ago") sho
 The default value for this is `P30D`, meaning if the current time is more than 30 days away from the specified date time, then an absolute date will be displayed.
 
 ```html
-<relative-time datetime="1970-04-01T16:30:00-08:00" threshold="P100Y">
+<time is="t-relative" datetime="1970-04-01T16:30:00-08:00" threshold="P100Y">
   <!-- Will display "<N> years ago" until 2070 when it will display "on April 1, 1970" -->
-</relative-time>
+</time>
 ```
 
 ```html
-<relative-time datetime="1970-04-01T16:30:00-08:00" threshold="P0S">
+<time is="t-relative" datetime="1970-04-01T16:30:00-08:00" threshold="P0S">
   <!-- Will always display "on April 1, 1970" -->
-</relative-time>
+</\time>
 ```
 
 ##### prefix (`string`, default: `'on'`)
@@ -242,9 +258,9 @@ If `tense` is anything other than `'auto'`, or `format` is anything other than `
 When formatting an absolute date (see above `threshold` for more details) it can be useful to prefix the date with some text. The default value for this is `on` but it can be any string value, an will be prepended to the date.
 
 ```html
-<relative-time datetime="1970-04-01T16:30:00-08:00" prefix="this happened on">
+<time is="t-relative" datetime="1970-04-01T16:30:00-08:00" prefix="this happened on">
   <!-- Will always display "this happened on April 1, 1970" -->
-</relative-time>
+</time>
 ```
 
 ##### formatStyle (`'long'|'short'|'narrow'`, default: `'narrow'|'long'`)
@@ -270,19 +286,37 @@ Lang is a [built-in global attribute](https://developer.mozilla.org/en-US/docs/W
 
 ## Browser Support
 
-Browsers without native [custom element support][support] require a [polyfill][ce-polyfill].
+Browsers without native [custom element support][support], including support for customized built-in elements, require a [polyfill][ce-polyfill]. This includes all versions of Safari, since that browser does not support customized built-in elements, as well as all browsers on all versions of iOS, since WebKit is the only browser engine permitted on that platform.
 
 Browsers without native support for [`Intl.RelativeTimeFormat`][relativetimeformat] or [`Intl.DateTimeFormat`][datetimeformat] (such as Safari 13 or Edge 18) will also need polyfills.
 
 - Chrome
 - Firefox
-- Safari (version 14 and above)
 - Microsoft Edge (version 79 and above)
 
 [support]: https://caniuse.com/custom-elementsv1
 [relativetimeformat]: https://caniuse.com/mdn-javascript_builtins_intl_relativetimeformat_format
 [datetimeformat]: https://caniuse.com/mdn-javascript_builtins_intl_datetimeformat_format
-[ce-polyfill]: https://github.com/webcomponents/custom-elements
+[ce-polyfill]: https://github.com/ungap/custom-elements
+
+### Safari and iOS
+
+Safari does not support *customized built-in elements* (elements like `<time is="t-local">`), and the way things currently stand, that's not going to change (see [WebKit bug #28544][webkit-bug] and their current [standards position][standards-position]). Without any fallbacks, the custom element will not be registered, and the default text in the HTML will be displayed. If you require a displayed time to always be localised and cannot rely on a polyfill, you should **not** use this element in production.
+
+The [@ungap/custom-elements][ce-polyfill] polyfill can be used to provide support for customized built-in elements in browsers as old as Safari 8 and Internet Explorer 11. Alternatively, you can use [@github/relative-time-element][github-time-element], which uses an autonomous custom element supported in all modern browsers. If you want the semantic benefits of using the `time` element, you can easily wrap the custom element provided by that module:
+
+  ```html
+  <time datetime="2014-04-01T16:30:00-08:00">
+    <relative-time datetime="2014-04-01T16:30:00-08:00">
+      April 1, 2014 4:30PM PDT
+    </relative-time>
+  </time>
+  ```
+
+Remember to include the `datetime` attribute on *both* elements, with the same value.
+
+[webkit-bug]: https://www.w3.org/Bugs/Public/show_bug.cgi?id=28544
+[standards-position]: https://github.com/WebKit/standards-positions/issues/97
 
 ## See Also
 
